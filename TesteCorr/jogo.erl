@@ -1,5 +1,5 @@
 -module(jogo).
--export([participa/1, adivinha/2]).
+-export([participa/1, adivinha/2, start/0]).
 
 start() -> spawn(fun() -> jogo([]) end).
 
@@ -11,10 +11,10 @@ adivinha(Partida, N) ->
     Partida ! {adivinha, N, self()},
     receive {Res, Partida} -> Res end.
 
-jogo(Jogadores) when length(Jogadores) =:= 4 ->
+jogo(Jogadores) when length(Jogadores) =:= 2 ->
     Random = rand:uniform(100),
     Partida = spawn(fun() -> partida(Random) end),
-    [J ! {Partida, self()} || J <- Jogadores]
+    [J ! {Partida, self()} || J <- Jogadores],
     jogo([]);
 
 jogo(Jogadores) ->
@@ -22,7 +22,7 @@ jogo(Jogadores) ->
 
 partida(Numero) ->
     Self = self(),
-    spawn(fun() -> receive after 60000 -> Self ! timeout end),
+    %spawn(fun() -> receive after 60000 -> Self ! timeout end),
     partida(false, 0, false, Numero).
 
 partida(Ganhou, Tentativas, Timeout, Numero) ->
